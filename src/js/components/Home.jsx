@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { findAllInRenderedTree } from "react-dom/test-utils";
 
 //create your first component
@@ -24,6 +24,47 @@ const Home = () => {
 		const newList = list.filter((_, i) => i != index);
 		setList(newList)
 	}
+	const addTareas = async() => {
+		try{
+			const response = await fetch("https://playground.4geeks.com/todo/todos/Batman", {
+				method: "POST",
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({
+					"label": "Entrenar supongo",
+					"is_done": false
+					})
+			});
+			console.log(response)
+		} catch(error){
+			console.log(error)
+		}
+	}
+	useEffect(()=>{
+	addTareas()
+	}, [])
+	const obtenerTareas = async() =>{
+		try {
+		const response = await fetch("https://playground.4geeks.com/todo/users/Batman");
+		console.log(response)
+		const data = await response.json()
+		console.log(data.todos)
+		setList(data.todos)
+		} catch (error){
+		console.log(error)
+		}
+	}
+useEffect(()=>{
+obtenerTareas()
+}, [])
+	/*const getTareas = () => {
+		fetch('https://playground.4geeks.com/todo/users/Batman')
+		.then((response) => response.json())
+		.then((data) => {setList(data.todos)});
+	}
+	useEffect(() => {
+		getTareas();
+	}, []);*/
+
 	return (
 		<div className="text-center container mt-5 card w-50 p-0">
 			<h1 className="card-header">To Do List</h1>
@@ -40,7 +81,8 @@ const Home = () => {
 				<div className="justify-content-center list-group-item">
 					{list.map((element, index) =>
 						<div key={index}>
-							<p>{element}
+							{/* element era original */}
+							<p>{element.label}
 							<button className="btn btn-outline-danger float-end" onClick={() => eliminarTarea(index)}>x</button>
 							</p>
 						</div>)}
