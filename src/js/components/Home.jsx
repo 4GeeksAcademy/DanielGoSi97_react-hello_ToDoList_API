@@ -1,16 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { findAllInRenderedTree } from "react-dom/test-utils";
 
 //create your first component
 const Home = () => {
 
-	const [list, setList] = useState(["Make the bed", "Wash my hands", "Eat", "Walk the dog"]);
+	const [list, setList] = useState([]);
 	const [inputElement, setInputElement] = useState("");
 
-	const addElementList = () => {
+	const addElementList = async() => {
 		if (inputElement != "") {
-			setList([...list, inputElement]);
+			const response = await fetch("https://playground.4geeks.com/todo/todos/Batman", {
+				method: "POST",
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({
+					"label": inputElement,
+					"is_done": false
+					})
+			});
+			console.log(response);
 			setInputElement("");
+			obtenerTareas();
 		}
 	}
 	function oprimioTecla(e) {
@@ -20,17 +28,28 @@ const Home = () => {
 			addElementList();
 		}
 	}
-	const eliminarTarea = (index) => {
+	/*const eliminarTarea = (index) => {
 		const newList = list.filter((_, i) => i != index);
 		setList(newList)
+	}*/
+	const eliminarTarea  = async(id)=>{
+		try{
+			const response = await fetch(`https://playground.4geeks.com/todo/todos/${id}`,{
+				method: "DELETE"
+			});
+			obtenerTareas();
+		} catch(error){
+			console.log(error)
+		}
+		obtenerTareas()
 	}
-	const addTareas = async() => {
+	/*const addTareas = async() => {
 		try{
 			const response = await fetch("https://playground.4geeks.com/todo/todos/Batman", {
 				method: "POST",
 				headers: {'Content-Type': 'application/json'},
 				body: JSON.stringify({
-					"label": "Entrenar supongo",
+					"label": inputElement,
 					"is_done": false
 					})
 			});
@@ -38,10 +57,7 @@ const Home = () => {
 		} catch(error){
 			console.log(error)
 		}
-	}
-	useEffect(()=>{
-	addTareas()
-	}, [])
+	}*/
 	const obtenerTareas = async() =>{
 		try {
 		const response = await fetch("https://playground.4geeks.com/todo/users/Batman");
@@ -83,7 +99,7 @@ obtenerTareas()
 						<div key={index}>
 							{/* element era original */}
 							<p>{element.label}
-							<button className="btn btn-outline-danger float-end" onClick={() => eliminarTarea(index)}>x</button>
+							<button className="btn btn-outline-danger float-end" onClick={() => eliminarTarea(element.id)}>x</button>
 							</p>
 						</div>)}
 				</div>
